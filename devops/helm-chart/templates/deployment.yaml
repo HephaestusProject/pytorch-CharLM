@@ -25,3 +25,5 @@ spec:
             - name: http
               containerPort: 5000
               protocol: TCP
+      imagePullSecrets:
+        - name: regcred
