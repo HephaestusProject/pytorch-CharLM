@@ -63,7 +63,7 @@ jobs:
     - name: Publish
       run: |
         docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
-#        For caching
+        # For caching
         docker tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
         docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
 
