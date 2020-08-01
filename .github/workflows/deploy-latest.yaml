@@ -44,7 +44,7 @@ jobs:
         project_id: ${{ secrets.GKE_PROJECT }}
 
     - name: something
-      runs: |
+      run: |
         cat ~/GH_TOKEN.txt | docker login docker.pkg.github.com -u dreamgonfly --password-stdin
         echo "success"
 
