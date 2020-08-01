@@ -54,7 +54,7 @@ jobs:
       env:
         REGISTRY: docker.pkg.github.com
         OWNER: hephaestusproject
-        REPOSITORY: pytorch-CharLM
+        REPOSITORY: pytorch-char-lm # must be lowercase
         IMAGE_NAME: char-lm-server
         IMAGE_TAG: ${{ github.sha }}
       run: |
@@ -67,7 +67,7 @@ jobs:
       env:
         REGISTRY: docker.pkg.github.com
         OWNER: hephaestusproject
-        REPOSITORY: pytorch-CharLM
+        REPOSITORY: pytorch-char-lm # must be lowercase
         IMAGE_NAME: char-lm-server
         IMAGE_TAG: ${{ github.sha }}
       run: |
@@ -78,7 +78,7 @@ jobs:
       env:
         REGISTRY: docker.pkg.github.com
         OWNER: hephaestusproject
-        REPOSITORY: pytorch-CharLM
+        REPOSITORY: pytorch-char-lm # must be lowercase
         IMAGE_NAME: char-lm-server
         IMAGE_TAG: ${{ github.sha }}
         HELM_RELEASE_NAME: char-lm
