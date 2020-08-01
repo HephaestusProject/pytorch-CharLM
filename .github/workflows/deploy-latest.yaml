@@ -84,9 +84,9 @@ jobs:
         HELM_RELEASE_NAME: char-lm
       run: |
         docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
-        # For caching
-        docker tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
-        docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
+#         For caching
+#        docker tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
+#        docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
 
 #    - name: Deploy Helm Chart
 #      uses: WyriHaximus/github-action-helm3@v2.0
