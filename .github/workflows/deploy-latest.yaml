@@ -25,7 +25,7 @@ env:
   USERNAME: dreamgonfly
   REGISTRY: docker.pkg.github.com
   OWNER: hephaestusproject
-  REPOSITORY: pytorch-charlm # repository name must be lowercase
+  REPOSITORY: pytorch-charlm # repository name must be lowercase, must match code repository name.
   IMAGE_NAME: charlm-server
   IMAGE_TAG: ${{ github.sha }}
   HELM_RELEASE_NAME: charlm
