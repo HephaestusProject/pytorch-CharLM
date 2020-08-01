@@ -7,7 +7,7 @@ RUN apt-get clean \
 
 RUN pip install --upgrade pip
 RUN pip install flask==1.1.1
-RUN pip install flask-restplus==0.12.1
+RUN pip install flask-restx
 RUN pip install pytest
 RUN pip install pyyaml
 

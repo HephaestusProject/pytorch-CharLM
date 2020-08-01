@@ -54,7 +54,7 @@ jobs:
       env:
         REGISTRY: docker.pkg.github.com
         OWNER: hephaestusproject
-        REPOSITORY: pytorch-char-lm # must be lowercase
+        REPOSITORY: pytorch-char-lm # repository name must be lowercase
         IMAGE_NAME: char-lm-server
         IMAGE_TAG: ${{ github.sha }}
       run: |
@@ -71,7 +71,7 @@ jobs:
         IMAGE_NAME: char-lm-server
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        CONTAINER_ID=$(docker run -d --env ENVIRONMENT $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG)
+        CONTAINER_ID=$(docker run -d --rm --env ENVIRONMENT $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG)
         docker exec $CONTAINER_ID pytest
 
     - name: Publish
