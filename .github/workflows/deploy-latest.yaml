@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Build and Deploy to GKE
+name: Build, Publish, and Deploy
 
 on:
   push:
@@ -21,90 +21,92 @@ on:
     - feature/#1-setup
 
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  ENVIRONMENT: latest
+  GKE_PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: monthly-deeplearning-cluster
   GKE_ZONE: us-west1-a
-  DEPLOYMENT_NAME: gke-test # TODO: update to deployment name
-  IMAGE: char-lm
 
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish, and Deploy
+  build-publish-deploy:
+    name: Build, Publish, and Deploy
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
-    # Setup gcloud CLI
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - name: Setup gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
         version: '290.0.1'
         service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
+        project_id: $GKE_PROJECT_ID
 
-    - name: something
+    - name: Login to Github Package
+      env:
+        REGISTRY: docker.pkg.github.com
+        USERNAME: dreamgonfly
+        PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        docker login docker.pkg.github.com -u dreamgonfly --password ${{ secrets.GITHUB_TOKEN }}
-        echo "success"
+        docker login $REGISTRY -u $USERNAME --password $PASSWORD
 
-
-    - name: Build, tag, and push image to Github Package
+    - name: Build Image
       id: build-image
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: playground-server
+        REGISTRY: docker.pkg.github.com
+        OWNER: hephaestusproject
+        REPOSITORY: pytorch-CharLM
+        IMAGE_NAME: char-lm-server
         IMAGE_TAG: ${{ github.sha }}
-        USERNAME: dreamgonfly
       run: |
-        cat ~/GH_TOKEN.txt | docker login docker.pkg.github.com -u dreamgonfly --password-stdin
-        docker tag IMAGE_ID docker.pkg.github.com/hephaestusproject/repository-name/IMAGE_NAME:VERSION
+        docker pull $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT || true
+        docker build . --file char-lm-server.Dockerfile --tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG --cache-from $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
+        echo "::set-output name=image_name::$REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG"
 
-        docker push docker.pkg.github.com/hephaestusproject/repository-name/IMAGE_NAME:VERSION
-        docker login https://docker.pkg.github.com -u $USERNAME --password
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to ECS.
-        docker pull $ECR_REGISTRY/$ECR_REPOSITORY:cache || true
-        docker build . --file playground-server.Dockerfile --tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:cache
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:cache
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:cache
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+    - name: Test Image
+      id: test-image
+      env:
+        REGISTRY: docker.pkg.github.com
+        OWNER: hephaestusproject
+        REPOSITORY: pytorch-CharLM
+        IMAGE_NAME: char-lm-server
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        CONTAINER_ID=$(docker run -d --env ENVIRONMENT $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG)
+        docker exec $CONTAINER_ID pytest
 
-    # Configure Docker to use the gcloud command-line tool as a credential
-    # helper for authentication
-    - run: |-
-        gcloud --quiet auth configure-docker
-
-    # Get the GKE credentials so we can deploy to the cluster
-    - run: |-
-        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
-
-    # Build the Docker image
-    - name: Build
-      run: |-
-        docker build \
-          --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
-          --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF" \
-          .
-
-    # Push the Docker image to Google Container Registry
     - name: Publish
-      run: |-
-        docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+      env:
+        REGISTRY: docker.pkg.github.com
+        OWNER: hephaestusproject
+        REPOSITORY: pytorch-CharLM
+        IMAGE_NAME: char-lm-server
+        IMAGE_TAG: ${{ github.sha }}
+        HELM_RELEASE_NAME: char-lm
+      run: |
+        docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
+        # For caching
+        docker tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
+        docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
 
-    # Set up kustomize
-    - name: Set up Kustomize
-      run: |-
-        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-        chmod u+x ./kustomize
+#    - name: Deploy Helm Chart
+#      uses: WyriHaximus/github-action-helm3@v2.0
+#      with:
+#        exec: helm upgrade $HELM_RELEASE_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --set=app.name=APP_NAME --values=./.helm/app/values.yaml
+#        kubeconfig: '${{ secrets.KUBECONFIG }}'
 
-    # Deploy the Docker image to the GKE cluster
-    - name: Deploy
-      run: |-
-        ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
-        ./kustomize build . | kubectl apply -f -
-        kubectl rollout status deployment/$DEPLOYMENT_NAME
-        kubectl get services -o wide
+#    - name: Deploy Helm Chart
+#      env:
+#        HELM_RELEASE_NAME: char-lm
+#        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
+#      uses: 'deliverybot/helm@v1'
+#      with:
+#        release: $HELM_RELEASE_NAME
+#        namespace: ${{ env.ENVIRONMENT }}
+#        chart: example-chart-${{ env.HELM_VERSION }}.tgz
+#        token: '${{ github.token }}'
+#        helm: helm3
+#        values: |
+#          image_tag: ${{ github.sha }}
+#          environment: ${{ env.ENVIRONMENT }}
+#
