@@ -89,4 +89,4 @@ jobs:
       uses: WyriHaximus/github-action-helm3@v2.0
       with:
         exec: helm upgrade $HELM_RELEASE_NAME ./.helm/app/ --install --wait --atomic --namespace=$ENVIRONMENT --set=environment=$ENVIRONMENT --set=image_tag=$IMAGE_TAG --values=configs/helm-chart-values/$ENVIRONMENT.yaml
-        kubeconfig: '$(cat ~/.kube/config)'
+        kubeconfig: '${{ secrets.KUBECONFIG }}'
