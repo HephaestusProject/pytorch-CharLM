@@ -22,6 +22,11 @@ on:
 
 env:
   ENVIRONMENT: latest
+  REGISTRY: docker.pkg.github.com
+  OWNER: hephaestusproject
+  REPOSITORY: pytorch-charlm # repository name must be lowercase
+  IMAGE_NAME: char-lm-server
+  IMAGE_TAG: ${{ github.sha }}
   GKE_CLUSTER: monthly-deeplearning-cluster
   GKE_ZONE: us-west1-a
 
@@ -43,20 +48,13 @@ jobs:
 
     - name: Login to Github Package
       env:
-        REGISTRY: docker.pkg.github.com
         USERNAME: dreamgonfly
         PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        docker login $REGISTRY -u $USERNAME --password $PASSWORD
+        docker login ${{ env.REGISTRY }} -u $USERNAME --password $PASSWORD
 
     - name: Build Image
       id: build-image
-      env:
-        REGISTRY: docker.pkg.github.com
-        OWNER: hephaestusproject
-        REPOSITORY: pytorch-char-lm # repository name must be lowercase
-        IMAGE_NAME: char-lm-server
-        IMAGE_TAG: ${{ github.sha }}
       run: |
         docker pull $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT || true
         docker build . --file char-lm-server.Dockerfile --tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG --cache-from $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
@@ -64,24 +62,12 @@ jobs:
 
     - name: Test Image
       id: test-image
-      env:
-        REGISTRY: docker.pkg.github.com
-        OWNER: hephaestusproject
-        REPOSITORY: pytorch-char-lm # must be lowercase
-        IMAGE_NAME: char-lm-server
-        IMAGE_TAG: ${{ github.sha }}
       run: |
         CONTAINER_ID=$(docker run -d --rm --env ENVIRONMENT $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG)
         docker exec $CONTAINER_ID pytest
 
     - name: Publish
-      env:
-        REGISTRY: docker.pkg.github.com
-        OWNER: hephaestusproject
-        REPOSITORY: pytorch-char-lm # must be lowercase
-        IMAGE_NAME: char-lm-server
-        IMAGE_TAG: ${{ github.sha }}
-        HELM_RELEASE_NAME: char-lm
+
       run: |
         docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
 #         For caching
@@ -90,6 +76,8 @@ jobs:
 
 #    - name: Deploy Helm Chart
 #      uses: WyriHaximus/github-action-helm3@v2.0
+#env:
+#        HELM_RELEASE_NAME: char-lm
 #      with:
 #        exec: helm upgrade $HELM_RELEASE_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --set=app.name=APP_NAME --values=./.helm/app/values.yaml
 #        kubeconfig: '${{ secrets.KUBECONFIG }}'
