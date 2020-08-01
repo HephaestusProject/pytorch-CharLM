@@ -45,7 +45,7 @@ jobs:
 
     - name: something
       run: |
-        docker login docker.pkg.github.com -u dreamgonfly --password ${{ GITHUB_TOKEN }}
+        docker login docker.pkg.github.com -u dreamgonfly --password ${{ secrets.GITHUB_TOKEN }}
         echo "success"
 
 
