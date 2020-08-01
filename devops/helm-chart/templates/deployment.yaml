@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: charlm-deployment
+  labels:
+    app: charlm
+    environment: {{ .Values.environment }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: charlm
+  template:
+    metadata:
+      labels:
+        app: charlm
+    spec:
+      containers:
+        - name: pg
+          image: "{{ .Values.registry }}/{{ .Values.owner }}/{{ .Values.repository }}/{{ .Values.image_name }}:{{ .Values.image_tag }}"
+          env:
+            - name: ENVIRONMENT
+              value: {{ .Values.environment }}
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP

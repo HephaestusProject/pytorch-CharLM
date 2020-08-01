@@ -22,11 +22,13 @@ on:
 
 env:
   ENVIRONMENT: latest
+  USERNAME: dreamgonfly
   REGISTRY: docker.pkg.github.com
   OWNER: hephaestusproject
   REPOSITORY: pytorch-charlm # repository name must be lowercase
-  IMAGE_NAME: char-lm-server
+  IMAGE_NAME: charlm-server
   IMAGE_TAG: ${{ github.sha }}
+  HELM_RELEASE_NAME: charlm
   GKE_CLUSTER: monthly-deeplearning-cluster
   GKE_ZONE: us-west1-a
 
@@ -48,7 +50,6 @@ jobs:
 
     - name: Login to Github Package
       env:
-        USERNAME: dreamgonfly
         PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       run: |
         docker login ${{ env.REGISTRY }} -u $USERNAME --password $PASSWORD
@@ -57,7 +58,7 @@ jobs:
       id: build-image
       run: |
         docker pull $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT || true
-        docker build . --file char-lm-server.Dockerfile --tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG --cache-from $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
+        docker build . --file charlm-server.Dockerfile --tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG --cache-from $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
         echo "::set-output name=image_name::$REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG"
 
     - name: Test Image
@@ -67,33 +68,14 @@ jobs:
         docker exec $CONTAINER_ID pytest
 
     - name: Publish
-
       run: |
         docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG
-#         For caching
-#        docker tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
-#        docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
+      # For caching
+        docker tag $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$IMAGE_TAG $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
+        docker push $REGISTRY/$OWNER/$REPOSITORY/$IMAGE_NAME:$ENVIRONMENT
 
-#    - name: Deploy Helm Chart
-#      uses: WyriHaximus/github-action-helm3@v2.0
-#env:
-#        HELM_RELEASE_NAME: char-lm
-#      with:
-#        exec: helm upgrade $HELM_RELEASE_NAME ./.helm/app/ --install --wait --atomic --namespace=APP_NAMESPACE --set=app.name=APP_NAME --values=./.helm/app/values.yaml
-#        kubeconfig: '${{ secrets.KUBECONFIG }}'
-
-#    - name: Deploy Helm Chart
-#      env:
-#        HELM_RELEASE_NAME: char-lm
-#        KUBECONFIG_FILE: '${{ secrets.KUBECONFIG }}'
-#      uses: 'deliverybot/helm@v1'
-#      with:
-#        release: $HELM_RELEASE_NAME
-#        namespace: ${{ env.ENVIRONMENT }}
-#        chart: example-chart-${{ env.HELM_VERSION }}.tgz
-#        token: '${{ github.token }}'
-#        helm: helm3
-#        values: |
-#          image_tag: ${{ github.sha }}
-#          environment: ${{ env.ENVIRONMENT }}
-#
+    - name: Deploy Helm Chart
+      uses: WyriHaximus/github-action-helm3@v2.0
+      with:
+        exec: helm upgrade $HELM_RELEASE_NAME ./.helm/app/ --install --wait --atomic --namespace=$ENVIRONMENT --set=environment=$ENVIRONMENT --set=image_tag=$IMAGE_TAG --values=configs/helm-chart-values/$ENVIRONMENT.yaml
+        kubeconfig: '${{ secrets.KUBECONFIG }}'
