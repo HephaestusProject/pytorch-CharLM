@@ -1,0 +1,4 @@
+registry: docker.pkg.github.com
+owner: hephaestusproject
+repository: pytorch-charlm
+image_name: charlm-server

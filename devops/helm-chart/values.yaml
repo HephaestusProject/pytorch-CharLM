@@ -1,9 +1,3 @@
-registry: docker.pkg.github.com
-owner: hephaestusproject
-repository: pytorch-charlm
-image_name: charlm-server
-
-
 # Default values for charlm.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
