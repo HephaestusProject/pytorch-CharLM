@@ -72,7 +72,7 @@ jobs:
       with:
         version: '290.0.1'
         service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
+        project_id: monthly-deeplearning
 
     - name: Configure docker to use the gcloud command-line tool as a credential helper for authentication
       run: |
