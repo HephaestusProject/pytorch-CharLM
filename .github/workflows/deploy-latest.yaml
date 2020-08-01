@@ -45,7 +45,7 @@ jobs:
 
     - name: something
       run: |
-        cat ~/GH_TOKEN.txt | docker login docker.pkg.github.com -u dreamgonfly --password-stdin
+        docker login docker.pkg.github.com -u dreamgonfly --password ${{ GITHUB_TOKEN }}
         echo "success"
 
 
