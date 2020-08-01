@@ -85,7 +85,9 @@ jobs:
     - run: |
         cat ~/.kube/config
 
-    - run: cp ~/.kube/config ./.kube/
+    - run: |
+        mkdir -p ./.kube
+        cp ~/.kube/config ./.kube/
 
     - name: Deploy Helm Chart
       uses: WyriHaximus/github-action-helm3@v2.0
