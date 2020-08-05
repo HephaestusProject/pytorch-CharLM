@@ -117,3 +117,5 @@ venv.bak/
 
 # Tensorboard
 events.out.tfevents.*
+
+.vscode/
