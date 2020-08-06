@@ -1,0 +1,8 @@
+{
+    "python.pythonPath": "/Users/yongraejo/opt/anaconda3/bin/python",
+    "python.linting.pylintArgs": [
+        "--generated-members=numpy.* ,torch.* ,cv2.* , cv.*",
+        "--disable", "arguments-differ", 
+        "--disable", "too-many-instance-attributes",
+        ]
+}
