@@ -26,6 +26,9 @@ class WordTokenizer:
             self.token_to_id.get(token, self.special_token_ids[unk_token_name]) for token in self.tokenize(sentence)
         ]
 
+    def encode_words_as_ids(self, words: List[str], unk_token_name: str = "unk_token"):
+        return [self.token_to_id.get(token, self.special_token_ids[unk_token_name]) for token in words]
+
     def encode_as_tokens(self, sentence: str, unk_token_name: str = "unk_token") -> List[str]:
         return [
             (token if token in self.token_to_id else self.special_tokens[unk_token_name])
@@ -56,8 +59,11 @@ class WordTokenizer:
         n = vocabulary_size - len(special_tokens) if vocabulary_size is not None else None
         most_commons = counter.most_common(n)
 
+        most_commons_without_special_tokens = [
+            (token, count) for token, count in most_commons if token not in special_tokens.values()
+        ]
         special_tokens_with_count = [(special_token, 0) for special_token in special_tokens.values()]
-        all_tokens = special_tokens_with_count + most_commons
+        all_tokens = special_tokens_with_count + most_commons_without_special_tokens
 
         vocabulary = [(token_id, token, count) for token_id, (token, count) in enumerate(all_tokens)]
 

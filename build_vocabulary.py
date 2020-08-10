@@ -15,35 +15,24 @@ from pathlib import Path
 
 from tokenizers.word_tokenizer import WordTokenizer
 from tokenizers.char_tokenizer import CharTokenizer
+from dataset import CharCorpusDataset, WORD_SPECIAL_TOKENS, CHAR_SPECIAL_TOKENS
 
 
 def build_vocabulary(hparams: dict):
-    def generate_sentences(data_path: Path):
-        with data_path.open() as data_file:
-            for line in data_file:
-                yield line
-
-    word_special_tokens = {
-        "pad_token": "[PAD]",
-        "unk_token": "[UNK]",
-        "sentence_end_token": "[SENTENCE_END]",
-    }
-
     word_tokenizer = WordTokenizer.build_from_generator(
-        sentences=generate_sentences(hparams["--data-path"]), special_tokens=word_special_tokens
+        sentences=generate_sentences(hparams["--data-path"]), special_tokens=WORD_SPECIAL_TOKENS
     )
 
-    char_special_tokens = {
-        "pad_token": "[PAD]",
-        "unk_token": "[UNK]",
-        "word_start_token": "[WORD_START]",
-        "word_end_token": "[WORD_END]",
-        "sentence_end_token": "[SENTENCE_END]",
-    }
-
     char_tokenizer = CharTokenizer.build_from_generator(
-        sentences=generate_sentences(hparams["--data-path"]), special_tokens=char_special_tokens
+        sentences=generate_sentences(hparams["--data-path"]), special_tokens=CHAR_SPECIAL_TOKENS
     )
 
     word_tokenizer.save(vocabulary_path=hparams["--word-vocabulary-path"])
     char_tokenizer.save(vocabulary_path=hparams["--char-vocabulary-path"])
+
+
+def generate_sentences(data_path: Path):
+    with data_path.open() as data_file:
+        for line in data_file:
+            line = CharCorpusDataset.normalize_line(line)
+            yield line
