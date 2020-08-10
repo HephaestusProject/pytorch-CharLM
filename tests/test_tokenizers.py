@@ -18,7 +18,7 @@ def test_char_tokenizer_build():
     char_tokenizer = CharTokenizer.build_from_generator(
         sentences=generate_sentences(SAMPLE_PATH), special_tokens=CHAR_SPECIAL_TOKENS
     )
-    char_tokenizer.save(Path("tt.tsv"))
+    
     assert char_tokenizer is not None
     assert len(char_tokenizer) == max(char_tokenizer.id_to_token.keys()) + 1  # indexing from zero
 
@@ -36,6 +36,6 @@ def test_word_tokenizer_build():
     word_tokenizer = WordTokenizer.build_from_generator(
         sentences=generate_sentences(SAMPLE_PATH), special_tokens=WORD_SPECIAL_TOKENS
     )
-    word_tokenizer.save(Path("tts.tsv"))
+    
     assert word_tokenizer is not None
     assert len(word_tokenizer) == max(word_tokenizer.id_to_token.keys()) + 1  # indexing from zero
