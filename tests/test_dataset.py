@@ -1,8 +1,13 @@
-from dataset import CharCorpusDataset, Word, WORD_START_TOKEN, WORD_END_TOKEN
+from build_vocabulary import (
+    CHAR_SPECIAL_TOKENS,
+    WORD_SPECIAL_TOKENS,
+    generate_sentences,
+)
+from dataset import WORD_END_TOKEN, WORD_START_TOKEN, CharCorpusDataset, Word
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
-from build_vocabulary import generate_sentences, CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS
-from . import SAMPLE_PATH, SAMPLE_CHAR_VOCABULARY_PATH, SAMPLE_WORD_VOCABULARY_PATH
+
+from . import SAMPLE_CHAR_VOCABULARY_PATH, SAMPLE_PATH, SAMPLE_WORD_VOCABULARY_PATH
 
 
 def test_normalize_text():
@@ -12,20 +17,44 @@ def test_normalize_text():
 
 
 def test_construct_corpus():
-    char_tokenizer = CharTokenizer.load(vocabulary_path=SAMPLE_CHAR_VOCABULARY_PATH, special_tokens=CHAR_SPECIAL_TOKENS)
-    word_tokenizer = WordTokenizer.load(vocabulary_path=SAMPLE_WORD_VOCABULARY_PATH, special_tokens=WORD_SPECIAL_TOKENS)
+    char_tokenizer = CharTokenizer.load(
+        vocabulary_path=SAMPLE_CHAR_VOCABULARY_PATH, special_tokens=CHAR_SPECIAL_TOKENS
+    )
+    word_tokenizer = WordTokenizer.load(
+        vocabulary_path=SAMPLE_WORD_VOCABULARY_PATH, special_tokens=WORD_SPECIAL_TOKENS
+    )
     dataset = CharCorpusDataset.construct_corpus(
-        data_path=SAMPLE_PATH, char_tokenizer=char_tokenizer, word_tokenizer=word_tokenizer, add_sentence_end=True,
+        data_path=SAMPLE_PATH,
+        char_tokenizer=char_tokenizer,
+        word_tokenizer=word_tokenizer,
+        add_sentence_end=True,
     )
     assert len(dataset.sentences) == 3
     assert dataset.sentences[0].words[0] == Word(
-        chars=[WORD_START_TOKEN, "c", "o", "n", "s", "u", "m", "e", "r", "s", WORD_END_TOKEN], word="consumers"
+        chars=[
+            WORD_START_TOKEN,
+            "c",
+            "o",
+            "n",
+            "s",
+            "u",
+            "m",
+            "e",
+            "r",
+            "s",
+            WORD_END_TOKEN,
+        ],
+        word="consumers",
     )
 
 
 def test_corpus_dataset():
-    char_tokenizer = CharTokenizer.load(vocabulary_path=SAMPLE_CHAR_VOCABULARY_PATH, special_tokens=CHAR_SPECIAL_TOKENS)
-    word_tokenizer = WordTokenizer.load(vocabulary_path=SAMPLE_WORD_VOCABULARY_PATH, special_tokens=WORD_SPECIAL_TOKENS)
+    char_tokenizer = CharTokenizer.load(
+        vocabulary_path=SAMPLE_CHAR_VOCABULARY_PATH, special_tokens=CHAR_SPECIAL_TOKENS
+    )
+    word_tokenizer = WordTokenizer.load(
+        vocabulary_path=SAMPLE_WORD_VOCABULARY_PATH, special_tokens=WORD_SPECIAL_TOKENS
+    )
     dataset = CharCorpusDataset(
         data_path=SAMPLE_PATH,
         char_tokenizer=char_tokenizer,
@@ -52,4 +81,3 @@ def test_corpus_dataset():
         },
         {"token_ids": [9, 10, 3, 11, 12, 13, 4, 14, 15], "length": 9},
     )
-

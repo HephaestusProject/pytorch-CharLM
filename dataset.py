@@ -4,9 +4,8 @@ from typing import List
 
 from torch.utils.data import Dataset
 
-from tokenizers.word_tokenizer import WordTokenizer
 from tokenizers.char_tokenizer import CharTokenizer
-
+from tokenizers.word_tokenizer import WordTokenizer
 
 UNKNOWN_SYMBOL = "<unk>"
 
@@ -80,13 +79,19 @@ class CharCorpusDataset(Dataset):
         self.max_word_length = max_word_length
 
     def __getitem__(self, item):
-        data_sequence = self.flattened_corpus[item * self.sequence_length : (item + 1) * self.sequence_length]
+        data_sequence = self.flattened_corpus[
+            item * self.sequence_length : (item + 1) * self.sequence_length
+        ]
         sequence_char_ids = []
         for word in data_sequence:
-            char_ids = self.char_tokenizer.encode_chars_as_ids(word.chars[: self.max_word_length])
+            char_ids = self.char_tokenizer.encode_chars_as_ids(
+                word.chars[: self.max_word_length]
+            )
             sequence_char_ids.append(char_ids)
 
-        sequence_word_ids = self.word_tokenizer.encode_words_as_ids([word.word for word in data_sequence])
+        sequence_word_ids = self.word_tokenizer.encode_words_as_ids(
+            [word.word for word in data_sequence]
+        )
 
         input_token_ids = sequence_char_ids[:-1]
         target_token_ids = sequence_word_ids[1:]
@@ -101,7 +106,10 @@ class CharCorpusDataset(Dataset):
 
     @staticmethod
     def construct_corpus(
-        data_path: Path, char_tokenizer: CharTokenizer, word_tokenizer: WordTokenizer, add_sentence_end: bool,
+        data_path: Path,
+        char_tokenizer: CharTokenizer,
+        word_tokenizer: WordTokenizer,
+        add_sentence_end: bool,
     ) -> Corpus:
         sentences = []
         with data_path.open() as data_file:
@@ -120,7 +128,12 @@ class CharCorpusDataset(Dataset):
                     chars.append(char_tokenizer.special_tokens["word_start_token"])
                     chars.append(char_tokenizer.special_tokens["sentence_end_token"])
                     chars.append(char_tokenizer.special_tokens["word_end_token"])
-                    words.append(Word(chars=chars, word=word_tokenizer.special_tokens["sentence_end_token"]))
+                    words.append(
+                        Word(
+                            chars=chars,
+                            word=word_tokenizer.special_tokens["sentence_end_token"],
+                        )
+                    )
                 sentences.append(Sentence(words=words))
 
         corpus = Corpus(sentences=sentences)

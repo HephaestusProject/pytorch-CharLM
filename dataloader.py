@@ -1,11 +1,12 @@
-from pytorch_lightning import LightningDataModule
-from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, CharCorpusDataset
-
-from torch.utils.data import DataLoader
-from tokenizers.char_tokenizer import CharTokenizer
-from tokenizers.word_tokenizer import WordTokenizer
 import subprocess
 from pathlib import Path
+
+from pytorch_lightning import LightningDataModule
+from torch.utils.data import DataLoader
+
+from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, CharCorpusDataset
+from tokenizers.char_tokenizer import CharTokenizer
+from tokenizers.word_tokenizer import WordTokenizer
 
 
 class LanguageModelingDataModule(LightningDataModule):
@@ -18,10 +19,12 @@ class LanguageModelingDataModule(LightningDataModule):
         self.val_path = hparams["--train-val-dir"].joinpath(hparams["--val-path"])
 
         self.char_tokenizer = CharTokenizer.load(
-            vocabulary_path=hparams["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS
+            vocabulary_path=hparams["--char-vocabulary-path"],
+            special_tokens=CHAR_SPECIAL_TOKENS,
         )
         self.word_tokenizer = WordTokenizer.load(
-            vocabulary_path=hparams["--word-vocabulary-path"], special_tokens=WORD_SPECIAL_TOKENS
+            vocabulary_path=hparams["--word-vocabulary-path"],
+            special_tokens=WORD_SPECIAL_TOKENS,
         )
 
         self.hparams = hparams
