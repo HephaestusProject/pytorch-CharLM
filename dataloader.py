@@ -30,9 +30,10 @@ class LanguageModelingDataModule(LightningDataModule):
         self.hparams = hparams
 
     def prepare_data(self):
-        subprocess.run("./download_ptb.sh", check=True)
+        if not Path("data/ptb/train.txt").exists():
+            subprocess.run("./download_ptb.sh", check=True)
 
-    def setup(self):
+    def setup(self, stage):
         pass
 
     def train_dataloader(self):
