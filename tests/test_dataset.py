@@ -1,4 +1,5 @@
 import torch
+
 from build_vocabulary import (
     CHAR_SPECIAL_TOKENS,
     WORD_SPECIAL_TOKENS,
