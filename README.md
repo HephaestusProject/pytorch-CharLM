@@ -35,6 +35,9 @@
   + ArgumentParser의 command가 code block 형태로 들어가야함.
     - single-gpu, multi-gpu
 
+* Run
+python3 main.py train --train-val-dir data/ptb --train-path train.txt --val-path valid.txt --word-vocabulary-path tokenizers/data/word_vocabulary.tsv --char-vocabulary-path tokenizers/data/char_vocabulary.tsv --max-word-length 10 --word-embedding-dim 100 --char-embedding-dim 20 --sequence-length 10 --batch-size 4 --num-workers 1 --max-epochs 10
+
 ### Inference
 
 * interface

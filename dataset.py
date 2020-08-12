@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
+import torch
 from torch.utils.data import Dataset
 
 from tokenizers.char_tokenizer import CharTokenizer
@@ -86,6 +87,8 @@ class CharCorpusDataset(Dataset):
         for word in data_sequence:
             char_ids = self.char_tokenizer.encode_chars_as_ids(
                 word.chars[: self.max_word_length]
+                + [self.char_tokenizer.special_tokens["pad_token"]]
+                * (self.max_word_length - len(word.chars))
             )
             sequence_char_ids.append(char_ids)
 
@@ -96,8 +99,14 @@ class CharCorpusDataset(Dataset):
         input_token_ids = sequence_char_ids[:-1]
         target_token_ids = sequence_word_ids[1:]
 
-        inputs = {"token_ids": input_token_ids, "length": len(input_token_ids)}
-        targets = {"token_ids": target_token_ids, "length": len(target_token_ids)}
+        inputs = {
+            "token_ids": torch.tensor(input_token_ids),
+            "length": len(input_token_ids),
+        }
+        targets = {
+            "token_ids": torch.tensor(target_token_ids),
+            "length": len(target_token_ids),
+        }
 
         return inputs, targets
 

@@ -1,3 +1,5 @@
+import torch
+
 from build_vocabulary import (
     CHAR_SPECIAL_TOKENS,
     WORD_SPECIAL_TOKENS,
@@ -63,18 +65,21 @@ def test_corpus_dataset():
         max_word_length=5,
         sequence_length=10,
     )
-    print("dataset[0]", dataset[0])
-    assert dataset[0] == (
+    first_datapoint = dataset[0]
+    first_datapoint[0]["token_ids"] = first_datapoint[0]["token_ids"].tolist()
+    first_datapoint[1]["token_ids"] = first_datapoint[1]["token_ids"].tolist()
+
+    assert first_datapoint == (
         {
             "token_ids": [
                 [2, 14, 6, 10, 8],
                 [2, 15, 9, 22, 3],
                 [2, 20, 9, 10, 7],
-                [2, 7, 6, 3],
+                [2, 7, 6, 3, 0],
                 [2, 15, 6, 16, 5],
                 [2, 7, 21, 5, 12],
                 [2, 7, 5, 13, 5],
-                [2, 9, 3],
+                [2, 9, 3, 0, 0],
                 [2, 13, 12, 7, 7],
             ],
             "length": 9,
