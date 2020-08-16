@@ -19,6 +19,13 @@ from pathlib import Path
 
 from type_docopt import docopt
 
+
+class IntList(list):
+    def __init__(self, arg):
+        int_list = [int(value) for value in arg.split(",")]
+        super(IntList, self).__init__(int_list)
+
+
 if __name__ == "__main__":
     args = docopt(__doc__, options_first=True)
     argv = [args["<command>"]] + args["<args>"]
@@ -31,7 +38,8 @@ if __name__ == "__main__":
     elif args["<command>"] == "train":
         from train import __doc__, train
 
-        train(docopt(__doc__, argv=argv, types={"path": Path}))
+        train(docopt(__doc__, argv=argv, types={"path": Path, "IntList": IntList}))
+
 
     else:
         raise NotImplementedError(f"Command does not exist: {args['<command>']}")

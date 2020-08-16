@@ -26,30 +26,33 @@ class CharLM(nn.Module):
         num_words: int,
         char_embedding_dim: int,
         char_padding_idx: int,
-        char_conv_sizes: List[ConvSize],
+        char_conv_kernel_sizes: List[int],
+        char_conv_out_channels: List[int],
         use_batch_norm: bool,
         num_highway_layers: int,
         hidden_dim: int,
         dropout: float,
     ):
         super(CharLM, self).__init__()
+
         self.char_embedding = nn.Embedding(
             num_chars, char_embedding_dim, padding_idx=char_padding_idx
         )
 
+        assert len(char_conv_kernel_sizes) == len(char_conv_out_channels)
         self.char_convs = nn.ModuleList(
             [
                 nn.Conv1d(
                     in_channels=char_embedding_dim,
-                    out_channels=char_conv_size.out_channels,
-                    kernel_size=char_conv_size.kernel_size,
+                    out_channels=out_channels,
+                    kernel_size=kernel_size,
                 )
-                for char_conv_size in char_conv_sizes
+                for kernel_size, out_channels in zip(char_conv_kernel_sizes, char_conv_out_channels)
             ]
         )
         self.tanh = nn.Tanh()
 
-        highway_input_dim = sum([char_conv_size.out_channels for char_conv_size in char_conv_sizes])
+        highway_input_dim = sum(char_conv_out_channels)
 
         if use_batch_norm:
             self.batch_norm = nn.BatchNorm1d(highway_input_dim, affine=False)

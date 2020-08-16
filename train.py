@@ -14,6 +14,8 @@ Options:
     --sequence-length <sequence-length>  Number of timesteps to unroll for [type: int]
     
     --char-embedding-dim <char-embedding-dim>  For char embedding layer of model [type: int]
+    --char-conv-kernel-sizes <char-conv-kernel-sizes>  [type: IntList]
+    --char-conv-out-channels <char-conv-out-channels>  [type: IntList]
     --hidden-dim <hidden-dim>  Hidden dimension for LSTM [type: int]
     --num-highway-layers <num-highway-layers>  [type: int]
     --use-batch-norm  Use BatchNorm1d after character convolutions

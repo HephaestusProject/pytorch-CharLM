@@ -19,20 +19,14 @@ class LanguageModelingLightningModel(LightningModule):
             num_words=num_words,
             char_embedding_dim=hparams["--char-embedding-dim"],
             char_padding_idx=char_pad_token_index,
-            char_conv_sizes=(
-                ConvSize(kernel_size=1, out_channels=25),
-                ConvSize(kernel_size=2, out_channels=50),
-                ConvSize(kernel_size=3, out_channels=75),
-                ConvSize(kernel_size=4, out_channels=100),
-                ConvSize(kernel_size=5, out_channels=125),
-                ConvSize(kernel_size=6, out_channels=150),
-            ),
+            char_conv_kernel_sizes=hparams["--char-conv-kernel-sizes"],
+            char_conv_out_channels=hparams["--char-conv-out-channels"],
             use_batch_norm=hparams["--use-batch-norm"],
             num_highway_layers=hparams["--num-highway-layers"],
             hidden_dim=hparams["--hidden-dim"],
             dropout=hparams["--dropout"],
         )
-        self.loss_function = TokenNLLLoss(ignore_index=-100)
+        self.loss_function = TokenNLLLoss(reduction="mean", ignore_index=-100)
         self.batch_size = None
         self.learning_rate = None
         self.hparams = hparams
