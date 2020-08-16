@@ -36,7 +36,7 @@ Options:
 from pathlib import Path
 
 import torch
-from pytorch_lightning import Callback, LightningModule, Trainer, seed_everything
+from pytorch_lightning import LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateLogger, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 

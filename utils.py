@@ -1,4 +1,5 @@
 from pathlib import Path
+from pytorch_lightning import Callback
 
 
 def get_next_version(root_dir: Path):
@@ -22,7 +23,12 @@ def get_next_version(root_dir: Path):
 
 class IntList(list):
     def __init__(self, arg):
-        int_list = [int(value) for value in arg.split(",")]
+        try:
+            int_list = [int(value) for value in arg.split(",")]
+        except ValueError as e:
+            e.args = e.args + ("Please check your command arguments",)
+            raise
+
         super(IntList, self).__init__(int_list)
 
 
