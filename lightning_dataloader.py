@@ -7,6 +7,9 @@ from torch.utils.data import DataLoader
 from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, CharCorpusDataset
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
+from torch.utils.data import SequentialSampler
+
+from batch_sampler import SequentialBatchSampler
 
 
 class LanguageModelingDataModule(LightningDataModule):
@@ -19,12 +22,10 @@ class LanguageModelingDataModule(LightningDataModule):
         self.val_path = hparams["--train-val-dir"].joinpath(hparams["--val-path"])
 
         self.char_tokenizer = CharTokenizer.load(
-            vocabulary_path=hparams["--char-vocabulary-path"],
-            special_tokens=CHAR_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS,
         )
         self.word_tokenizer = WordTokenizer.load(
-            vocabulary_path=hparams["--word-vocabulary-path"],
-            special_tokens=WORD_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--word-vocabulary-path"], special_tokens=WORD_SPECIAL_TOKENS,
         )
 
         self.hparams = hparams
@@ -48,8 +49,11 @@ class LanguageModelingDataModule(LightningDataModule):
 
         return DataLoader(
             train_dataset,
-            batch_size=self.hparams["--batch-size"],
-            shuffle=True,
+            batch_sampler=SequentialBatchSampler(
+                sampler=SequentialSampler(data_source=train_dataset),
+                batch_size=self.hparams["--batch-size"],
+                drop_last=True,
+            ),
             num_workers=self.hparams["--num-workers"],
             pin_memory=True,
         )
@@ -66,7 +70,11 @@ class LanguageModelingDataModule(LightningDataModule):
 
         return DataLoader(
             val_dataset,
-            batch_size=self.hparams["--batch-size"],
+            batch_sampler=SequentialBatchSampler(
+                sampler=SequentialSampler(data_source=val_dataset),
+                batch_size=self.hparams["--batch-size"],
+                drop_last=True,
+            ),
             num_workers=self.hparams["--num-workers"],
             pin_memory=True,
         )
