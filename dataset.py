@@ -73,31 +73,35 @@ class CharCorpusDataset(Dataset):
         for sentence in corpus.sentences:
             flattened_corpus.extend(sentence.words)
 
+        max_word = max(flattened_corpus, key=lambda word: len(word.chars))
+        self.max_word_length = min(max_word_length, len(max_word.chars))
+        print("max_word_length", self.max_word_length)
+
         self.flattened_corpus = flattened_corpus
         self.char_tokenizer = char_tokenizer
         self.word_tokenizer = word_tokenizer
         self.sequence_length = sequence_length
-        self.max_word_length = max_word_length
 
     def __getitem__(self, item):
-        data_sequence = self.flattened_corpus[
-            item * self.sequence_length : (item + 1) * self.sequence_length
+        sequence_pointer = item * self.sequence_length
+        input_sequence = self.flattened_corpus[
+            sequence_pointer : sequence_pointer + self.sequence_length
         ]
-        sequence_char_ids = []
-        for word in data_sequence:
-            char_ids = self.char_tokenizer.encode_chars_as_ids(
-                word.chars[: self.max_word_length]
-                + [self.char_tokenizer.special_tokens["pad_token"]]
-                * (self.max_word_length - len(word.chars))
-            )
-            sequence_char_ids.append(char_ids)
+        output_sequence = self.flattened_corpus[
+            sequence_pointer + 1 : sequence_pointer + self.sequence_length + 1
+        ]
 
-        sequence_word_ids = self.word_tokenizer.encode_words_as_ids(
-            [word.word for word in data_sequence]
+        input_token_ids = []
+        for word in input_sequence:
+            chars = word.chars[: self.max_word_length]
+            while len(chars) < self.max_word_length:
+                chars.append(self.char_tokenizer.special_tokens["pad_token"])
+            char_ids = self.char_tokenizer.encode_chars_as_ids(chars)
+            input_token_ids.append(char_ids)
+
+        target_token_ids = self.word_tokenizer.encode_words_as_ids(
+            [word.word for word in output_sequence]
         )
-
-        input_token_ids = sequence_char_ids[:-1]
-        target_token_ids = sequence_word_ids[1:]
 
         inputs = {
             "token_ids": torch.tensor(input_token_ids),
@@ -111,7 +115,8 @@ class CharCorpusDataset(Dataset):
         return inputs, targets
 
     def __len__(self):
-        return len(self.flattened_corpus) // self.sequence_length
+        input_sequence_size = len(self.flattened_corpus) - 1
+        return input_sequence_size // self.sequence_length
 
     @staticmethod
     def construct_corpus(
@@ -127,21 +132,17 @@ class CharCorpusDataset(Dataset):
                 words = []
                 for raw_word in line.split():
                     chars: List[Char] = []
-                    chars.append(char_tokenizer.special_tokens["word_start_token"])
                     for raw_char in raw_word:
                         chars.append(raw_char)
-                    chars.append(char_tokenizer.special_tokens["word_end_token"])
+                    if not (raw_word == UNK_TOKEN or raw_word == PAD_TOKEN):
+                        chars.insert(0, char_tokenizer.special_tokens["word_start_token"])
+                        chars.append(char_tokenizer.special_tokens["word_end_token"])
                     words.append(Word(chars=chars, word=raw_word))
                 if add_sentence_end:
                     chars: List[Char] = []
-                    chars.append(char_tokenizer.special_tokens["word_start_token"])
                     chars.append(char_tokenizer.special_tokens["sentence_end_token"])
-                    chars.append(char_tokenizer.special_tokens["word_end_token"])
                     words.append(
-                        Word(
-                            chars=chars,
-                            word=word_tokenizer.special_tokens["sentence_end_token"],
-                        )
+                        Word(chars=chars, word=word_tokenizer.special_tokens["sentence_end_token"],)
                     )
                 sentences.append(Sentence(words=words))
 
