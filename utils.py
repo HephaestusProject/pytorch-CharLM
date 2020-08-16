@@ -24,3 +24,11 @@ class IntList(list):
     def __init__(self, arg):
         int_list = [int(value) for value in arg.split(",")]
         super(IntList, self).__init__(int_list)
+
+
+class StickingProgressBarCallback(Callback):
+    def __init__(self):
+        super().__init__()
+
+    def on_epoch_start(self, trainer, pl_module):
+        print(" ")

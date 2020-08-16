@@ -42,7 +42,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 from lightning_dataloader import LanguageModelingDataModule
 from lightning_model import LanguageModelingLightningModel
-from utils import get_next_version
+from utils import get_next_version, StickingProgressBarCallback
 
 
 def train(args: dict):
@@ -102,11 +102,3 @@ def train(args: dict):
         weights_summary="top",
     )
     trainer.fit(lm_lightning_model, lm_data_module)
-
-
-class StickingProgressBarCallback(Callback):
-    def __init__(self):
-        super().__init__()
-
-    def on_epoch_start(self, trainer, pl_module):
-        print(" ")
