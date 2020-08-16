@@ -1,8 +1,8 @@
-from torch.utils.data import BatchSampler
+from torch.utils.data import BatchSampler, Sampler
 
 
 class SequentialBatchSampler(BatchSampler):
-    def __init__(self, sampler, batch_size, drop_last):
+    def __init__(self, sampler: Sampler, batch_size: int, drop_last: bool):
         super(SequentialBatchSampler, self).__init__(
             sampler=sampler, batch_size=batch_size, drop_last=drop_last
         )
