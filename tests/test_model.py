@@ -1,6 +1,6 @@
 import torch
 
-from model import CharLM, ConvSize
+from model import CharLM
 
 
 def test_model_size():
