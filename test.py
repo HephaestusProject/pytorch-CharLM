@@ -14,16 +14,17 @@ Options:
     
     -h --help  Show this.
 """
-from model import CharLM, ConvSize
-from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, CharCorpusDataset
-from tokenizers.char_tokenizer import CharTokenizer
-from tokenizers.word_tokenizer import WordTokenizer
-import torch
-
 import math
+
+import torch
+from tqdm import tqdm
+
+from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, CharCorpusDataset
 from losses import TokenNLLLoss
 from metrics import perplexity_score
-from tqdm import tqdm
+from model import CharLM, ConvSize
+from tokenizers.char_tokenizer import CharTokenizer
+from tokenizers.word_tokenizer import WordTokenizer
 
 
 def test(args: dict):

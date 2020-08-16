@@ -1,10 +1,6 @@
 import torch
 
-from build_vocabulary import (
-    CHAR_SPECIAL_TOKENS,
-    WORD_SPECIAL_TOKENS,
-    generate_sentences,
-)
+from build_vocabulary import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, generate_sentences
 from dataset import WORD_END_TOKEN, WORD_START_TOKEN, CharCorpusDataset, Word
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer

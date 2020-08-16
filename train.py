@@ -35,11 +35,11 @@ Options:
 """
 from pathlib import Path
 
-from pytorch_lightning import LightningModule, Trainer, seed_everything
+import torch
+from pytorch_lightning import Callback, LightningModule, Trainer, seed_everything
 from pytorch_lightning.callbacks import LearningRateLogger, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning import Callback
-import torch
+
 from lightning_dataloader import LanguageModelingDataModule
 from lightning_model import LanguageModelingLightningModel
 from utils import get_next_version

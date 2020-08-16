@@ -2,14 +2,12 @@ import subprocess
 from pathlib import Path
 
 from pytorch_lightning import LightningDataModule
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, SequentialSampler
 
+from batch_sampler import SequentialBatchSampler
 from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, CharCorpusDataset
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
-from torch.utils.data import SequentialSampler
-
-from batch_sampler import SequentialBatchSampler
 
 
 class LanguageModelingDataModule(LightningDataModule):

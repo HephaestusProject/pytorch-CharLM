@@ -1,10 +1,6 @@
 from pathlib import Path
 
-from build_vocabulary import (
-    CHAR_SPECIAL_TOKENS,
-    WORD_SPECIAL_TOKENS,
-    generate_sentences,
-)
+from build_vocabulary import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, generate_sentences
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
 

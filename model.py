@@ -1,7 +1,8 @@
-import torch
-import torch.nn as nn
 from collections import namedtuple
 from typing import List
+
+import torch
+import torch.nn as nn
 
 ConvSize = namedtuple("ConvSize", ["kernel_size", "out_channels"])
 
