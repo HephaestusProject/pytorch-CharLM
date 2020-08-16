@@ -75,7 +75,7 @@ class CharCorpusDataset(Dataset):
 
         max_word = max(flattened_corpus, key=lambda word: len(word.chars))
         self.max_word_length = min(max_word_length, len(max_word.chars))
-        print("max_word_length", self.max_word_length)
+        print("max word length:", self.max_word_length)
 
         self.flattened_corpus = flattened_corpus
         self.char_tokenizer = char_tokenizer

@@ -18,17 +18,17 @@ from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
 
 
-def build_vocabulary(hparams: dict):
+def build_vocabulary(args: dict):
     word_tokenizer = WordTokenizer.build_from_generator(
-        sentences=generate_sentences(hparams["--data-path"]), special_tokens=WORD_SPECIAL_TOKENS,
+        sentences=generate_sentences(args["--data-path"]), special_tokens=WORD_SPECIAL_TOKENS,
     )
 
     char_tokenizer = CharTokenizer.build_from_generator(
-        sentences=generate_sentences(hparams["--data-path"]), special_tokens=CHAR_SPECIAL_TOKENS,
+        sentences=generate_sentences(args["--data-path"]), special_tokens=CHAR_SPECIAL_TOKENS,
     )
 
-    word_tokenizer.save(vocabulary_path=hparams["--word-vocabulary-path"])
-    char_tokenizer.save(vocabulary_path=hparams["--char-vocabulary-path"])
+    word_tokenizer.save(vocabulary_path=args["--word-vocabulary-path"])
+    char_tokenizer.save(vocabulary_path=args["--char-vocabulary-path"])
 
 
 def generate_sentences(data_path: Path):

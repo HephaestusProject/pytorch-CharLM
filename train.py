@@ -45,26 +45,26 @@ from lightning_model import LanguageModelingLightningModel
 from utils import get_next_version
 
 
-def train(hparams: dict):
+def train(args: dict):
 
     seed_everything(0)
 
-    lm_data_module = LanguageModelingDataModule(hparams=hparams)
+    lm_data_module = LanguageModelingDataModule(hparams=args)
 
     lm_lightning_model = LanguageModelingLightningModel(
-        hparams=hparams,
+        hparams=args,
         num_chars=len(lm_data_module.char_tokenizer),
         num_words=len(lm_data_module.word_tokenizer),
         char_pad_token_index=lm_data_module.char_tokenizer.special_token_ids["pad_token"],
     )
 
-    root_dir = hparams["--run-dir"].joinpath(hparams["--name"])
+    root_dir = args["--run-dir"].joinpath(args["--name"])
     next_version = get_next_version(root_dir=root_dir)
     version_dir = root_dir.joinpath(next_version)
     version_dir.mkdir(parents=True, exist_ok=True)
 
     logger = WandbLogger(
-        name=str(hparams["--name"]), save_dir=str(version_dir), offline=True, version=next_version,
+        name=str(args["--name"]), save_dir=str(version_dir), offline=True, version=next_version,
     )
 
     checkpoint_callback = ModelCheckpoint(
@@ -82,16 +82,16 @@ def train(hparams: dict):
         # TODO: auto_lr_find='learning_rate',
         benchmark=False,
         deterministic=True,
-        callbacks=[LearningRateLogger(), StickingProgressBarCallback(hparams)],
+        callbacks=[LearningRateLogger(), StickingProgressBarCallback()],
         check_val_every_n_epoch=1,
         checkpoint_callback=checkpoint_callback,
         distributed_backend="dp",
         fast_dev_run=False,
         gpus=-1 if torch.cuda.is_available() else None,
-        gradient_clip_val=hparams["--gradient-clip-val"],
+        gradient_clip_val=args["--gradient-clip-val"],
         log_save_interval=10,
         logger=logger,
-        max_epochs=hparams["--max-epochs"],
+        max_epochs=args["--max-epochs"],
         num_sanity_val_steps=5,
         overfit_batches=0.0,
         precision=32,
@@ -105,10 +105,8 @@ def train(hparams: dict):
 
 
 class StickingProgressBarCallback(Callback):
-    def __init__(self, hparams):
+    def __init__(self):
         super().__init__()
-
-        self.hparams = hparams
 
     def on_epoch_start(self, trainer, pl_module):
         print(" ")
