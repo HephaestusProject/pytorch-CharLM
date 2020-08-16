@@ -35,8 +35,18 @@
   + ArgumentParser의 command가 code block 형태로 들어가야함.
     - single-gpu, multi-gpu
 
+* docker build
+docker build . --file charlm-trainer.Dockerfile --tag charlm-trainer:v0.1 --rm
+
+* docker run
+docker run --interactive --tty --name clm --gpus all --shm-size 4G --volume /home/yongrae/pytorch-CharLM:/charlm charlm-trainer:v0.1
+
 * Run
-python3 main.py train --train-val-dir data/ptb --train-path train.txt --val-path valid.txt --word-vocabulary-path tokenizers/data/word_vocabulary.tsv --char-vocabulary-path tokenizers/data/char_vocabulary.tsv --max-word-length 10 --word-embedding-dim 100 --char-embedding-dim 20 --sequence-length 10 --batch-size 4 --num-workers 1 --max-epochs 10
+CUDA_VISIBLE_DEVICES=0 python main.py train --train-val-dir data/ptb --train-path train.txt --val-path valid.txt --word-vocabulary-path tokenizers/data/word_vocabulary.tsv --char-vocabulary-path tokenizers/data/char_vocabulary.tsv --max-word-length 65 --sequence-length 35 --char-embedding-dim 15 --char-conv-kernel-sizes '1,2,3,4,5,6' --char-conv-out-channels '25,50,75,100,125,150' --hidden-dim 300 --num-highway-layers 1 --use-batch-norm --dropout 0.5 --gradient-clip-val 5.0 --lr 1.0 --batch-size 20 --num-workers 4 --max-epochs 25
+
+
+* Test
+CUDA_VISIBLE_DEVICES=0 python main.py test --test-path data/ptb/test.txt --word-vocabulary-path tokenizers/data/word_vocabulary.tsv --char-vocabulary-path tokenizers/data/char_vocabulary.tsv --max-word-length 65 --sequence-length 35 --checkpoint-path results/runs/run/v071/checkpoints/epoch\=024_val_ppl\=81.84527.ckpt
 
 ### Inference
 
