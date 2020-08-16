@@ -7,7 +7,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from losses import TokenNLLLoss
 from metrics import perplexity_score
-from model import CharLM, ConvSize
+from model import CharLM
 
 
 class LanguageModelingLightningModel(LightningModule):

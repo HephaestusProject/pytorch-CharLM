@@ -22,7 +22,7 @@ from tqdm import tqdm
 from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, CharCorpusDataset
 from losses import TokenNLLLoss
 from metrics import perplexity_score
-from model import CharLM, ConvSize
+from model import CharLM
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
 

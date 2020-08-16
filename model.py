@@ -4,8 +4,6 @@ from typing import List
 import torch
 import torch.nn as nn
 
-ConvSize = namedtuple("ConvSize", ["kernel_size", "out_channels"])
-
 
 class CharLM(nn.Module):
     """CNN + highway network + LSTM
