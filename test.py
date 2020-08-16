@@ -71,6 +71,7 @@ def test(args: dict):
         add_sentence_end=True,
         max_word_length=args["--max-word-length"],
         sequence_length=args["--sequence-length"],
+        drop_last=False,
     )
 
     loss_function = TokenNLLLoss(reduction="sum", ignore_index=-100)

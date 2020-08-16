@@ -4,6 +4,7 @@ from typing import List
 
 import torch
 from torch.utils.data import Dataset
+import math
 
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
@@ -59,6 +60,7 @@ class CharCorpusDataset(Dataset):
         add_sentence_end: bool,
         max_word_length: int,
         sequence_length: int,
+        drop_last: bool = True,
     ):
         super(CharCorpusDataset, self).__init__()
 
@@ -81,15 +83,17 @@ class CharCorpusDataset(Dataset):
         self.char_tokenizer = char_tokenizer
         self.word_tokenizer = word_tokenizer
         self.sequence_length = sequence_length
+        self.drop_last = drop_last
 
     def __getitem__(self, item):
+        if item >= len(self):
+            raise IndexError
         sequence_pointer = item * self.sequence_length
-        input_sequence = self.flattened_corpus[
-            sequence_pointer : sequence_pointer + self.sequence_length
-        ]
-        output_sequence = self.flattened_corpus[
-            sequence_pointer + 1 : sequence_pointer + self.sequence_length + 1
-        ]
+        sequence_end_pointer = min(
+            sequence_pointer + self.sequence_length, len(self.flattened_corpus) - 1
+        )
+        input_sequence = self.flattened_corpus[sequence_pointer:sequence_end_pointer]
+        output_sequence = self.flattened_corpus[sequence_pointer + 1 : sequence_end_pointer + 1]
 
         input_token_ids = []
         for word in input_sequence:
@@ -116,7 +120,10 @@ class CharCorpusDataset(Dataset):
 
     def __len__(self):
         input_sequence_size = len(self.flattened_corpus) - 1
-        return input_sequence_size // self.sequence_length
+        if self.drop_last:
+            return input_sequence_size // self.sequence_length
+        else:
+            return math.ceil(input_sequence_size / self.sequence_length)
 
     @staticmethod
     def construct_corpus(
