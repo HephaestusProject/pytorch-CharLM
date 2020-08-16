@@ -18,3 +18,9 @@ def get_next_version(root_dir: Path):
 
         next_version = last_version + 1
     return f"{version_prefix}{next_version:0>3}"
+
+
+class IntList(list):
+    def __init__(self, arg):
+        int_list = [int(value) for value in arg.split(",")]
+        super(IntList, self).__init__(int_list)

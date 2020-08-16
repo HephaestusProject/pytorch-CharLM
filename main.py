@@ -19,12 +19,7 @@ from pathlib import Path
 
 from type_docopt import docopt
 
-
-class IntList(list):
-    def __init__(self, arg):
-        int_list = [int(value) for value in arg.split(",")]
-        super(IntList, self).__init__(int_list)
-
+from utils import IntList
 
 if __name__ == "__main__":
     args = docopt(__doc__, options_first=True)
