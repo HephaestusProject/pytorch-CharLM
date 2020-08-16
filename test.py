@@ -89,4 +89,5 @@ def test(args: dict):
         total_loss += loss_sum
         total_length += num_tokens
 
-    print("Test Perplexity:", torch.exp(total_loss / total_length))
+    test_perplexity = torch.exp(total_loss / total_length)
+    print("Test Perplexity:", test_perplexity.item())
