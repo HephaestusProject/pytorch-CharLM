@@ -40,6 +40,10 @@ if __name__ == "__main__":
 
         train(docopt(__doc__, argv=argv, types={"path": Path, "IntList": IntList}))
 
+    elif args["<command>"] == "test":
+        from test import __doc__, test
+
+        test(docopt(__doc__, argv=argv, types={"path": Path}))
 
     else:
         raise NotImplementedError(f"Command does not exist: {args['<command>']}")
