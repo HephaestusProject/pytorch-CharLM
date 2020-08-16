@@ -20,13 +20,11 @@ from tokenizers.word_tokenizer import WordTokenizer
 
 def build_vocabulary(hparams: dict):
     word_tokenizer = WordTokenizer.build_from_generator(
-        sentences=generate_sentences(hparams["--data-path"]),
-        special_tokens=WORD_SPECIAL_TOKENS,
+        sentences=generate_sentences(hparams["--data-path"]), special_tokens=WORD_SPECIAL_TOKENS,
     )
 
     char_tokenizer = CharTokenizer.build_from_generator(
-        sentences=generate_sentences(hparams["--data-path"]),
-        special_tokens=CHAR_SPECIAL_TOKENS,
+        sentences=generate_sentences(hparams["--data-path"]), special_tokens=CHAR_SPECIAL_TOKENS,
     )
 
     word_tokenizer.save(vocabulary_path=hparams["--word-vocabulary-path"])
