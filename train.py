@@ -42,7 +42,7 @@ from pytorch_lightning.loggers import WandbLogger
 
 from lightning_dataloader import LanguageModelingDataModule
 from lightning_model import LanguageModelingLightningModel
-from utils import get_next_version, StickingProgressBarCallback
+from utils import StickingProgressBarCallback, get_next_version
 
 
 def train(args: dict):

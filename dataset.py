@@ -1,10 +1,10 @@
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
 import torch
 from torch.utils.data import Dataset
-import math
 
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
