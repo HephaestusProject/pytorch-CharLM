@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pytorch_lightning import Callback
+
 
 def get_next_version(root_dir: Path):
     version_prefix = "v"
@@ -18,3 +20,22 @@ def get_next_version(root_dir: Path):
 
         next_version = last_version + 1
     return f"{version_prefix}{next_version:0>3}"
+
+
+class IntList(list):
+    def __init__(self, arg):
+        try:
+            int_list = [int(value) for value in arg.split(",")]
+        except ValueError as e:
+            e.args = e.args + ("Please check your command arguments",)
+            raise
+
+        super(IntList, self).__init__(int_list)
+
+
+class StickingProgressBarCallback(Callback):
+    def __init__(self):
+        super().__init__()
+
+    def on_epoch_start(self, trainer, pl_module):
+        print(" ")

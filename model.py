@@ -1,22 +1,8 @@
-"""
-Adapted from https://github.com/FengZiYjun/CharLM/blob/master/model.py
-"""
+from collections import namedtuple
+from typing import List
 
 import torch
 import torch.nn as nn
-
-
-class Highway(nn.Module):
-    def __init__(self, input_size):
-        super(Highway, self).__init__()
-        self.fc1 = nn.Linear(input_size, input_size, bias=True)
-        self.fc2 = nn.Linear(input_size, input_size, bias=True)
-        self.sigmoid = nn.Sigmoid()
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        t = self.sigmoid(self.fc1(x))
-        return t * self.relu(self.fc2(x)) + (1 - t) * x
 
 
 class CharLM(nn.Module):
@@ -33,95 +19,127 @@ class CharLM(nn.Module):
         use_gpu: True or False
     """
 
-    def __init__(self, num_chars, num_words, char_embedding_dim, word_embedding_dim):
+    def __init__(
+        self,
+        num_chars: int,
+        num_words: int,
+        char_embedding_dim: int,
+        char_padding_idx: int,
+        char_conv_kernel_sizes: List[int],
+        char_conv_out_channels: List[int],
+        use_batch_norm: bool,
+        num_highway_layers: int,
+        hidden_dim: int,
+        dropout: float,
+    ):
         super(CharLM, self).__init__()
-        self.char_embedding = nn.Embedding(num_chars, char_embedding_dim)
 
-        # convolutions of filters with different sizes
-        self.convolutions = []
+        self.char_embedding = nn.Embedding(
+            num_chars, char_embedding_dim, padding_idx=char_padding_idx
+        )
 
-        # list of tuples: (the number of filter, width)
-        filter_num_width = [(25, 1), (50, 2), (75, 3), (100, 4), (125, 5), (150, 6)]
-        for out_channel, filter_width in filter_num_width:
-            self.convolutions.append(
-                nn.Conv2d(
-                    in_channels=1,
-                    out_channels=out_channel,
-                    kernel_size=(char_embedding_dim, filter_width),  # (height, width)
-                    bias=True,
+        assert len(char_conv_kernel_sizes) == len(char_conv_out_channels)
+        self.char_convs = nn.ModuleList(
+            [
+                nn.Conv1d(
+                    in_channels=char_embedding_dim,
+                    out_channels=out_channels,
+                    kernel_size=kernel_size,
                 )
-            )
-
+                for kernel_size, out_channels in zip(char_conv_kernel_sizes, char_conv_out_channels)
+            ]
+        )
         self.tanh = nn.Tanh()
 
-        self.highway_input_dim = sum([x for x, y in filter_num_width])
+        highway_input_dim = sum(char_conv_out_channels)
 
-        self.batch_norm = nn.BatchNorm1d(self.highway_input_dim, affine=False)
+        if use_batch_norm:
+            self.batch_norm = nn.BatchNorm1d(highway_input_dim, affine=False)
+        else:
+            self.batch_norm = None
 
-        self.highway1 = Highway(self.highway_input_dim)
-        self.highway2 = Highway(self.highway_input_dim)
+        self.highway_layers = nn.Sequential(
+            *[Highway(input_size=highway_input_dim) for _ in range(num_highway_layers)]
+        )
 
         self.lstm = nn.LSTM(
-            input_size=self.highway_input_dim,
-            hidden_size=word_embedding_dim,
+            input_size=highway_input_dim,
+            hidden_size=hidden_dim,
             num_layers=2,
             bias=True,
-            dropout=0.5,
+            dropout=dropout,
             batch_first=True,
         )
 
-        self.dropout = nn.Dropout(p=0.5)
-        self.linear = nn.Linear(word_embedding_dim, num_words)
+        self.output_layer = nn.Sequential(
+            nn.Dropout(p=dropout), nn.Linear(hidden_dim, num_words), nn.LogSoftmax(dim=2)
+        )
 
-    def forward(self, x, hidden):
-        # Input: [num_seq, seq_len, max_word_len+2]
-        # Return: [num_words, len(word_dict)]
-        lstm_batch_size = x.size(0)
-        lstm_seq_len = x.size(1)
+        self._hidden = None
 
-        x = x.contiguous().view(-1, x.size(2))
+    def forward(self, x):
+        batch_size, num_words, max_word_length = x.size()
+
+        x = x.view(-1, max_word_length).contiguous()
         # [num_seq*seq_len, max_word_len+2]
 
         x = self.char_embedding(x)
         # [num_seq*seq_len, max_word_len+2, char_emb_dim]
 
-        x = torch.transpose(x.view(x.size()[0], 1, x.size()[1], -1), 2, 3)
-        # [num_seq*seq_len, 1, char_emb_dim, max_word_len+2]
+        x = x.transpose(1, 2)
+        # x = torch.transpose(torch.unsqueeze(x, 2), 1, 3).contiguous()
+        # (num_seq*seq_len, char_embedding_dim, 1, max_word_len+2)
 
-        x = self.conv_layers(x)
-        # [num_seq*seq_len, total_num_filters]
-
-        x = self.batch_norm(x)
-        # [num_seq*seq_len, total_num_filters]
-
-        x = self.highway1(x)
-        x = self.highway2(x)
-        # [num_seq*seq_len, total_num_filters]
-
-        x = x.contiguous().view(lstm_batch_size, lstm_seq_len, -1)
-        # [num_seq, seq_len, total_num_filters]
-
-        x, hidden = self.lstm(x, hidden)
-        # [num_seq, seq_len, hidden_size]
-
-        x = self.dropout(x)
-        # [num_seq, seq_len, hidden_size]
-
-        x = self.linear(x)
-        # [num_seq, seq_len, vocab_size]
-
-        return x, hidden
-
-    def conv_layers(self, x):
         chosen_list = list()
-        for conv in self.convolutions:
-            feature_map = self.tanh(conv(x))
+        for char_conv in self.char_convs:
+            feature_map = self.tanh(char_conv(x))
             # (batch_size, out_channel, 1, max_word_len-width+1)
-            chosen = torch.max(feature_map, 3)[0]
+            chosen, _ = torch.max(feature_map, dim=2)
+            # chosen, _ = torch.max(feature_map, 3)
             # (batch_size, out_channel, 1)
-            chosen = chosen.squeeze()
+            # chosen = chosen.squeeze()
             # (batch_size, out_channel)
             chosen_list.append(chosen)
 
         # (batch_size, total_num_filers)
-        return torch.cat(chosen_list, 1)
+        x = torch.cat(chosen_list, dim=1)
+        # [num_seq*seq_len, total_num_filters]
+
+        if self.batch_norm:
+            x = self.batch_norm(x)
+        # [num_seq*seq_len, total_num_filters]
+
+        x = self.highway_layers(x)
+        # [num_seq*seq_len, total_num_filters]
+
+        x = x.view(batch_size, num_words, -1).contiguous()
+        # [num_seq, seq_len, total_num_filters]
+
+        x, self._hidden = self.lstm(x, self._hidden)
+        # [num_seq, seq_len, hidden_size]
+
+        x = self.output_layer(x)
+
+        return x
+
+    def initialize_state(self):
+        self._hidden = None
+
+    def detach_state(self):
+        if self._hidden is not None:
+            self._hidden = [h.detach() for h in self._hidden]
+
+
+class Highway(nn.Module):
+    def __init__(self, input_size):
+        super(Highway, self).__init__()
+        self.fc1 = nn.Linear(input_size, input_size, bias=True)
+        self.fc2 = nn.Linear(input_size, input_size, bias=True)
+        self.sigmoid = nn.Sigmoid()
+        self.relu = nn.ReLU()
+
+        self.fc1.bias.data.fill_(-2)
+
+    def forward(self, x):
+        gate = self.sigmoid(self.fc1(x))
+        return gate * self.relu(self.fc2(x)) + (1 - gate) * x

@@ -1,10 +1,6 @@
 from pathlib import Path
 
-from build_vocabulary import (
-    CHAR_SPECIAL_TOKENS,
-    WORD_SPECIAL_TOKENS,
-    generate_sentences,
-)
+from build_vocabulary import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, generate_sentences
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
 
@@ -34,9 +30,7 @@ def test_char_tokenizer_build():
     )
 
     assert char_tokenizer is not None
-    assert (
-        len(char_tokenizer) == max(char_tokenizer.id_to_token.keys()) + 1
-    )  # indexing from zero
+    assert len(char_tokenizer) == max(char_tokenizer.id_to_token.keys()) + 1  # indexing from zero
 
 
 def test_word_tokenizer_tokenize():
@@ -56,6 +50,4 @@ def test_word_tokenizer_build():
     )
 
     assert word_tokenizer is not None
-    assert (
-        len(word_tokenizer) == max(word_tokenizer.id_to_token.keys()) + 1
-    )  # indexing from zero
+    assert len(word_tokenizer) == max(word_tokenizer.id_to_token.keys()) + 1  # indexing from zero

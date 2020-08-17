@@ -1,10 +1,6 @@
 import torch
 
-from build_vocabulary import (
-    CHAR_SPECIAL_TOKENS,
-    WORD_SPECIAL_TOKENS,
-    generate_sentences,
-)
+from build_vocabulary import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, generate_sentences
 from dataset import WORD_END_TOKEN, WORD_START_TOKEN, CharCorpusDataset, Word
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
@@ -33,19 +29,7 @@ def test_construct_corpus():
     )
     assert len(dataset.sentences) == 3
     assert dataset.sentences[0].words[0] == Word(
-        chars=[
-            WORD_START_TOKEN,
-            "c",
-            "o",
-            "n",
-            "s",
-            "u",
-            "m",
-            "e",
-            "r",
-            "s",
-            WORD_END_TOKEN,
-        ],
+        chars=[WORD_START_TOKEN, "c", "o", "n", "s", "u", "m", "e", "r", "s", WORD_END_TOKEN,],
         word="consumers",
     )
 
@@ -81,8 +65,9 @@ def test_corpus_dataset():
                 [2, 7, 5, 13, 5],
                 [2, 9, 3, 0, 0],
                 [2, 13, 12, 7, 7],
+                [2, 14, 13, 6, 8],
             ],
-            "length": 9,
+            "length": 10,
         },
-        {"token_ids": [9, 10, 3, 11, 12, 13, 4, 14, 15], "length": 9},
+        {"token_ids": [9, 10, 3, 11, 12, 13, 4, 14, 15, 3], "length": 10},
     )

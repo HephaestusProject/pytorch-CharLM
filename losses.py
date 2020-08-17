@@ -3,10 +3,10 @@ from torch import nn
 
 
 class TokenNLLLoss(nn.Module):
-    def __init__(self, ignore_index):
+    def __init__(self, reduction, ignore_index):
         super().__init__()
 
-        self.nll_loss = nn.NLLLoss(reduction="mean", ignore_index=ignore_index)
+        self.nll_loss = nn.NLLLoss(reduction=reduction, ignore_index=ignore_index)
 
     def forward(self, outputs, targets):
         batch_size, sequence_length = targets.size()
