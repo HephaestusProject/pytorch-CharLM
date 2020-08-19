@@ -54,7 +54,6 @@ def train(args: dict):
     lm_lightning_model = LanguageModelingLightningModel(
         hparams=args,
         num_chars=len(lm_data_module.char_tokenizer),
-        num_words=len(lm_data_module.word_tokenizer),
         char_pad_token_index=lm_data_module.char_tokenizer.special_token_ids["pad_token"],
     )
 

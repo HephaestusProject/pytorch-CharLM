@@ -11,18 +11,13 @@ from model import CharLM
 
 
 class LanguageModelingLightningModel(LightningModule):
-    def __init__(self, hparams, num_chars, num_words, char_pad_token_index):
+    def __init__(self, hparams, num_chars, char_pad_token_index):
         super().__init__()
 
         self.model = CharLM(
             num_chars=num_chars,
-            num_words=num_words,
             char_embedding_dim=hparams["--char-embedding-dim"],
             char_padding_idx=char_pad_token_index,
-            char_conv_kernel_sizes=hparams["--char-conv-kernel-sizes"],
-            char_conv_out_channels=hparams["--char-conv-out-channels"],
-            use_batch_norm=hparams["--use-batch-norm"],
-            num_highway_layers=hparams["--num-highway-layers"],
             hidden_dim=hparams["--hidden-dim"],
             dropout=hparams["--dropout"],
         )
@@ -72,7 +67,8 @@ class LanguageModelingLightningModel(LightningModule):
 
     def configure_optimizers(self):
 
-        optimizer = SGD(self.parameters(), lr=self.hparams["--lr"])
+        # optimizer = SGD(self.parameters(), lr=self.hparams["--lr"])
+        optimizer = Adam(self.parameters(), lr=1e-3, betas=(0.9, 0.98))
         lr_scheduler = ReduceLROnPlateau(
             optimizer=optimizer,
             factor=0.5,

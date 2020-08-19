@@ -22,9 +22,6 @@ class LanguageModelingDataModule(LightningDataModule):
         self.char_tokenizer = CharTokenizer.load(
             vocabulary_path=hparams["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS,
         )
-        self.word_tokenizer = WordTokenizer.load(
-            vocabulary_path=hparams["--word-vocabulary-path"], special_tokens=WORD_SPECIAL_TOKENS,
-        )
 
         self.hparams = hparams
 
@@ -39,7 +36,6 @@ class LanguageModelingDataModule(LightningDataModule):
         train_dataset = CharCorpusDataset(
             data_path=self.train_path,
             char_tokenizer=self.char_tokenizer,
-            word_tokenizer=self.word_tokenizer,
             add_sentence_end=True,
             max_word_length=self.hparams["--max-word-length"],
             sequence_length=self.hparams["--sequence-length"],
@@ -60,7 +56,6 @@ class LanguageModelingDataModule(LightningDataModule):
         val_dataset = CharCorpusDataset(
             data_path=self.val_path,
             char_tokenizer=self.char_tokenizer,
-            word_tokenizer=self.word_tokenizer,
             add_sentence_end=True,
             max_word_length=self.hparams["--max-word-length"],
             sequence_length=self.hparams["--sequence-length"],
