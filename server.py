@@ -4,14 +4,14 @@ from serving.app_factory import create_app
 
 
 class Request(BaseModel):
-    base64_image_string: str
+    input_text: str
 
 
 class Response(BaseModel):
-    prediction: str
+    generated_text: str
 
 
-def handler(request):
+def handler(request: Request) -> Response:
     return "hi"
 
 
