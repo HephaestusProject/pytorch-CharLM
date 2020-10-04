@@ -130,4 +130,4 @@ jobs:
         HELM_RELEASE_NAME: ${{ steps.extract_config.outputs.helm_release_name }}
       run: |
         helm upgrade $HELM_RELEASE_NAME ./deploying/helm --install --wait --atomic --namespace=$ENVIRONMENT \
-          --set=environment=$ENVIRONMENT --set=image_tag=$IMAGE_TAG --values=configs/deploying/helm-values/$ENVIRONMENT.yaml
+          --set=environment=$ENVIRONMENT --set=image_tag=$IMAGE_TAG --values=configs/deploying/$ENVIRONMENT.yaml
