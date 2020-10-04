@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Values.app_label }}
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
     - port: 8000
       targetPort: 8000
