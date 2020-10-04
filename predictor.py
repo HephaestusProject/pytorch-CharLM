@@ -8,8 +8,8 @@ from typing import List
 from dataset import Char, PAD_TOKEN, UNK_TOKEN, Word
 from torch.utils.data.dataloader import default_collate
 
-class Predictor:
 
+class Predictor:
     def __init__(self, model, char_tokenizer, word_tokenizer, hparams):
         self.model = model.eval()
         self.char_tokenizer = char_tokenizer
@@ -29,7 +29,7 @@ class Predictor:
                 chars.insert(0, self.char_tokenizer.special_tokens["word_start_token"])
                 chars.append(self.char_tokenizer.special_tokens["word_end_token"])
             words.append(Word(chars=chars, word=raw_word))
-        
+
         input_sequence = words
 
         input_token_ids = []
@@ -49,7 +49,7 @@ class Predictor:
             }
             inputs_tensor = default_collate([inputs])
 
-            outputs = self.model(inputs_tensor['token_ids'])
+            outputs = self.model(inputs_tensor["token_ids"])
             last_word_log_probs = outputs[0, -1]
             last_word_log_probs[1] = -1e8
             topk_values, topk_indices = last_word_log_probs.topk(k=1)
@@ -57,30 +57,29 @@ class Predictor:
 
             output_tokens.append(raw_word)
 
-            if raw_word == self.word_tokenizer.special_tokens['sentence_end_token']:
+            if raw_word == self.word_tokenizer.special_tokens["sentence_end_token"]:
                 break
-            
+
             char_ids = self.char_tokenizer.encode_as_ids(raw_word)[0]
             if not (raw_word == UNK_TOKEN or raw_word == PAD_TOKEN):
                 char_ids.insert(0, self.char_tokenizer.special_token_ids["word_start_token"])
                 char_ids.append(self.char_tokenizer.special_token_ids["word_end_token"])
-            
+
             while len(char_ids) < self.hparams["--max-word-length"]:
                 char_ids.append(self.char_tokenizer.special_token_ids["pad_token"])
 
             input_token_ids = [char_ids]
 
-        prediction_text = ' '.join(output_tokens)
-        prediction_text = prediction_text.replace(SENTENCE_END_TOKEN, '</s>')
-        prediction_text = prediction_text.replace(UNK_TOKEN, '<unk>')
-        
-        return input_text + ' ' + prediction_text
+        prediction_text = " ".join(output_tokens)
+        prediction_text = prediction_text.replace(SENTENCE_END_TOKEN, "</s>")
+        prediction_text = prediction_text.replace(UNK_TOKEN, "<unk>")
 
+        return input_text + " " + prediction_text
 
     @classmethod
     def from_checkpoint(cls, checkpoint_path: Path):
-        checkpoint = torch.load(checkpoint_path, map_location='cpu')
-        hparams = checkpoint['hyper_parameters']
+        checkpoint = torch.load(checkpoint_path, map_location="cpu")
+        hparams = checkpoint["hyper_parameters"]
 
         char_tokenizer = CharTokenizer.load(
             vocabulary_path=hparams["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS,
@@ -113,5 +112,9 @@ class Predictor:
         }
         model.load_state_dict(state_dict)
 
-        return cls(model=model, char_tokenizer=char_tokenizer, word_tokenizer=word_tokenizer, hparams=hparams)
-
+        return cls(
+            model=model,
+            char_tokenizer=char_tokenizer,
+            word_tokenizer=word_tokenizer,
+            hparams=hparams,
+        )
