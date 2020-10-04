@@ -22,8 +22,7 @@ spec:
             - name: ENVIRONMENT
               value: {{ .Values.environment }}
           ports:
-            - name: http
-              containerPort: 5000
+            - containerPort: 8000
               protocol: TCP
       imagePullSecrets:
         - name: regcred
