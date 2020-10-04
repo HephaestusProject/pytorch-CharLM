@@ -24,5 +24,11 @@ spec:
           ports:
             - containerPort: 8000
               protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /hello
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 15
       imagePullSecrets:
         - name: regcred
