@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from predictor import Predictor
 from serving.app_factory import create_app
 
-
 predictor = Predictor.from_checkpoint(
     checkpoint_path=Path("checkpoints/epoch=024_val_ppl=101.52542.ckpt"),
 )

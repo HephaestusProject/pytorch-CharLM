@@ -20,10 +20,12 @@ class LanguageModelingDataModule(LightningDataModule):
         self.val_path = hparams["--train-val-dir"].joinpath(hparams["--val-path"])
 
         self.char_tokenizer = CharTokenizer.load(
-            vocabulary_path=hparams["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--char-vocabulary-path"],
+            special_tokens=CHAR_SPECIAL_TOKENS,
         )
         self.word_tokenizer = WordTokenizer.load(
-            vocabulary_path=hparams["--word-vocabulary-path"], special_tokens=WORD_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--word-vocabulary-path"],
+            special_tokens=WORD_SPECIAL_TOKENS,
         )
 
         self.hparams = hparams

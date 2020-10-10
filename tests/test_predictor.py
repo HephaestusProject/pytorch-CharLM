@@ -1,5 +1,6 @@
-from predictor import Predictor
 from pathlib import Path
+
+from predictor import Predictor
 
 
 def test_predictor():
