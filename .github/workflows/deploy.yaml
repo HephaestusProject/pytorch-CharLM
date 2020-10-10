@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+    - env/live
 
 env:
   IMAGE_TAG: ${{ github.sha }}
