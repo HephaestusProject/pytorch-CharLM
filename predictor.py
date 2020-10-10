@@ -91,10 +91,12 @@ class Predictor:
         hparams = checkpoint["hyper_parameters"]
 
         char_tokenizer = CharTokenizer.load(
-            vocabulary_path=hparams["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--char-vocabulary-path"],
+            special_tokens=CHAR_SPECIAL_TOKENS,
         )
         word_tokenizer = WordTokenizer.load(
-            vocabulary_path=hparams["--word-vocabulary-path"], special_tokens=WORD_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--word-vocabulary-path"],
+            special_tokens=WORD_SPECIAL_TOKENS,
         )
 
         num_chars = len(char_tokenizer)

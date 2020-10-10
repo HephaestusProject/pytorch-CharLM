@@ -29,7 +29,19 @@ def test_construct_corpus():
     )
     assert len(dataset.sentences) == 3
     assert dataset.sentences[0].words[0] == Word(
-        chars=[WORD_START_TOKEN, "c", "o", "n", "s", "u", "m", "e", "r", "s", WORD_END_TOKEN,],
+        chars=[
+            WORD_START_TOKEN,
+            "c",
+            "o",
+            "n",
+            "s",
+            "u",
+            "m",
+            "e",
+            "r",
+            "s",
+            WORD_END_TOKEN,
+        ],
         word="consumers",
     )
 

@@ -64,7 +64,10 @@ def train(args: dict):
     version_dir.mkdir(parents=True, exist_ok=True)
 
     logger = WandbLogger(
-        name=str(args["--name"]), save_dir=str(version_dir), offline=True, version=next_version,
+        name=str(args["--name"]),
+        save_dir=str(version_dir),
+        offline=True,
+        version=next_version,
     )
 
     checkpoint_callback = ModelCheckpoint(
