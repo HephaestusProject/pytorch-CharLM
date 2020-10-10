@@ -1,12 +1,21 @@
 from pathlib import Path
+from typing import List
+
 import torch
+from torch.utils.data.dataloader import default_collate
+
+from dataset import (
+    CHAR_SPECIAL_TOKENS,
+    PAD_TOKEN,
+    SENTENCE_END_TOKEN,
+    UNK_TOKEN,
+    WORD_SPECIAL_TOKENS,
+    Char,
+    Word,
+)
+from model import CharLM
 from tokenizers.char_tokenizer import CharTokenizer
 from tokenizers.word_tokenizer import WordTokenizer
-from dataset import CHAR_SPECIAL_TOKENS, WORD_SPECIAL_TOKENS, SENTENCE_END_TOKEN
-from model import CharLM
-from typing import List
-from dataset import Char, PAD_TOKEN, UNK_TOKEN, Word
-from torch.utils.data.dataloader import default_collate
 
 
 class Predictor:
@@ -82,10 +91,12 @@ class Predictor:
         hparams = checkpoint["hyper_parameters"]
 
         char_tokenizer = CharTokenizer.load(
-            vocabulary_path=hparams["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--char-vocabulary-path"],
+            special_tokens=CHAR_SPECIAL_TOKENS,
         )
         word_tokenizer = WordTokenizer.load(
-            vocabulary_path=hparams["--word-vocabulary-path"], special_tokens=WORD_SPECIAL_TOKENS,
+            vocabulary_path=hparams["--word-vocabulary-path"],
+            special_tokens=WORD_SPECIAL_TOKENS,
         )
 
         num_chars = len(char_tokenizer)
