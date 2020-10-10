@@ -2,7 +2,7 @@
 PyTorch implementation of [Character-Aware Neural Language Models](https://arxiv.org/abs/1508.06615)
 
 
-[![Code Coverage](https://codecov.io/gh/HephaestusProject/template/branch/master/graph/badge.svg)](https://codecov.io/gh/HephaestusProject/template)
+[![Code Coverage](https://codecov.io/gh/HephaestusProject/pytorch-CharLM/branch/master/graph/badge.svg)](https://codecov.io/gh/HephaestusProject/template)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Abstract
