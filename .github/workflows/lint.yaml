@@ -39,7 +39,7 @@ jobs:
               run: python3 -m isort .
 
             - name: apply black
-              run: python3 -m black .
+              run: python3 -m black . --config pyproject.toml
 
             - name: commit
               run: |
