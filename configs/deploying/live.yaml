@@ -1,0 +1,7 @@
+username: dreamgonfly
+registry: docker.pkg.github.com
+owner: hephaestusproject
+repository: pytorch-charlm  # repository name must be lowercase, and must match code repository name.
+image_name: charlm-server
+app_label: charlm
+helm_release_name: charlm
