@@ -33,7 +33,6 @@ jobs:
                   pip3 install --upgrade pip setuptools
                   pip3 install black --no-cache --user
                   pip3 install isort --no-cache --user                  
-                  pip3 install -r requirements.txt --user
 
             - name: apply isort
               run: python3 -m isort .
