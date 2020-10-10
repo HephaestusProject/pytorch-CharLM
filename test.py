@@ -30,12 +30,10 @@ from tokenizers.word_tokenizer import WordTokenizer
 def test(args: dict):
 
     char_tokenizer = CharTokenizer.load(
-        vocabulary_path=args["--char-vocabulary-path"],
-        special_tokens=CHAR_SPECIAL_TOKENS,
+        vocabulary_path=args["--char-vocabulary-path"], special_tokens=CHAR_SPECIAL_TOKENS,
     )
     word_tokenizer = WordTokenizer.load(
-        vocabulary_path=args["--word-vocabulary-path"],
-        special_tokens=WORD_SPECIAL_TOKENS,
+        vocabulary_path=args["--word-vocabulary-path"], special_tokens=WORD_SPECIAL_TOKENS,
     )
 
     checkpoint = torch.load(

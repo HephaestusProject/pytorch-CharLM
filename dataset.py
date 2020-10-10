@@ -149,10 +149,7 @@ class CharCorpusDataset(Dataset):
                     chars: List[Char] = []
                     chars.append(char_tokenizer.special_tokens["sentence_end_token"])
                     words.append(
-                        Word(
-                            chars=chars,
-                            word=word_tokenizer.special_tokens["sentence_end_token"],
-                        )
+                        Word(chars=chars, word=word_tokenizer.special_tokens["sentence_end_token"],)
                     )
                 sentences.append(Sentence(words=words))
 
